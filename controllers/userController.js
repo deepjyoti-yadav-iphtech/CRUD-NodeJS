@@ -5,53 +5,58 @@ const getAllUser = async (req, res) => {
   try {
     const results = await UserModel.getAllUser();
     if (!results.length > 0) throw new Error("No user found!");
-    return res.status(200).json({ success: true, data: results });
+    return res.status(200).json(results);
   } catch (err) {
     console.log(err);
     return res.status(400).json({ success: false, message: err.message });
   }
 };
 
-
 const createUser = async (req, res) => {
   try {
     const { name, email } = req.body;
-    const result = await  UserModel.createUser(name, email);
-    return res.status(201).json({ success: true, message: "User added successfully" });
+    const result = await UserModel.createUser(name, email);
+    return res.status(201).json({
+      success: true,
+      message: "User added successfully",
+      id: result.insertId,
+    });
   } catch (err) {
     console.error(err.message);
     return res.status(500).send({ error: err });
   }
-}
-
-// Get a single user by ID
-const getUserByID = (req, res) => {
-  const { id } = req.params;
-  db.query("SELECT * FROM users WHERE id = ?", [id], (err, results) => {
-    if (err) throw err;
-    res.json(results[0]);
-  });
 };
 
-const updateUser = (req, res) => {
-  const { id } = req.params;
-  const { name, email } = req.body;
-  db.query(
-    "UPDATE users SET name = ?, email = ? WHERE id = ?",
-    [name, email, id],
-    (err) => {
-      if (err) throw err;
-      res.json({ message: "User updated successfully" });
-    }
-  );
+const getUserByID = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await UserModel.getUserByID(id);
+    if (!result) throw new Error(`User with the id ${id} not found!`);
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
 };
 
-const deleteUser = (req, res) => {
-  const { id } = req.params;
-  db.query("DELETE FROM users WHERE id = ?", [id], (err) => {
-    if (err) throw err;
-    res.json({ message: "User deleted successfully" });
-  });
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email } = req.body;
+    const result = await UserModel.updateUser(name, email, id);
+    return res.status(200).json({ message: "User updated successfully." });
+  } catch (err) {
+    return res.status(400).json({ message: err.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await UserModel.deleteUser(id);
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (err) {
+    return res.status(400).json({ message: err.message });
+  }
 };
 
 module.exports = {
