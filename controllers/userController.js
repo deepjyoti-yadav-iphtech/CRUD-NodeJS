@@ -40,8 +40,7 @@ const getUserByID = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, email } = req.body;
+    const { name, email, id } = req.body;
     const result = await UserModel.updateUser(name, email, id);
     return res.status(200).json({ message: "User updated successfully." });
   } catch (err) {
